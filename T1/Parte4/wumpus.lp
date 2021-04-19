@@ -33,15 +33,9 @@ not wumpus(X,Y) :- cell(X,Y), cell(A,B), not sense_stench(A,B), neigh(X,Y,A,B), 
 
 
 % Una celda con la regla sense_breeze debe tener por lo menos una celda vecina que no es safe.
-:- cell(X,Y), sense_breeze(X,Y), K = #count{Xc,Yc : cell(Xc,Yx), cell(Ac,Bc), neigh(Xc,Yc,Ac,Bc), sense_breeze(Xc,Yc), not safe(Ac,Bc), Ac == A, Bc == B}, K==0.
+:- cell(X,Y), sense_breeze(X,Y), K = #count{A,B : cell(A,B), neigh(X,Y,A,B), not safe(A,B)}, K==0.
 % Una celda con la regla sense_stench debe tener por lo menos una celda vecina que no es safe.
-:- cell(X,Y), sense_stench(X,Y), K = #count{Xc,Yc : cell(Xc,Yx), cell(Ac,Bc), neigh(Xc,Yc,Ac,Bc), sense_stench(Xc,Yc), not safe(Ac,Bc), Ac == A, Bc == B}, K==0.
-
-
-% El resto de las celdas pueden ser safe si: 
-% - No hay necesariamente un wu
-% {safe(X,Y) : cell(X,Y), not wumpus(X,Y), not pit(X,Y), neigh(X,Y,A,B), alive(A,B)}.
-
+:- cell(X,Y), sense_stench(X,Y), K = #count{A,B : cell(A,B), neigh(X,Y,A,B), not safe(A,B)}, K==0.
 
 #show pit/2.
 #show wumpus/2.
@@ -49,4 +43,3 @@ not wumpus(X,Y) :- cell(X,Y), cell(A,B), not sense_stench(A,B), neigh(X,Y,A,B), 
 #show sense_breeze/2.
 #show sense_stench/2.
 #show alive/2.
-
