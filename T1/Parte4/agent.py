@@ -114,14 +114,17 @@ class Agent:
         # If there's no target, we need to shoot or
         if not target:
             # TODO Define shoot condition here
-            if False:
-                return ('shoot', 0, 0)
+            if True:
+                return ('shoot', 1, 1)
             # Else the model is unsolvable
             return 'unsolvable'
 
         # If target is a neighbor add to path, if not, backtrack (i.e. new target is last step)
         if not target in neighbors:
-            target = self.path.pop()
+            found_path, path = find_path(self.x, self.y, target[0], target[1], self.env.visited)
+            if not found_path:
+                return 'unsolvable'
+            target = path[0]
         else:
             self.path.append((self.x, self.y))
 
