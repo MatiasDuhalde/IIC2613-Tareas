@@ -5,7 +5,7 @@ import queue
 class Agent:
     def __init__(self, env):
         self.env = env
-        self.x = env.init_x      # tamaño de la grilla
+        self.x = env.init_x      # no es el tamaño de la grilla, es la posición del agente
         self.y = env.init_y
         self.visited = set()     # celdas ya visitadas
         self.visited.add((self.x, self.y))
@@ -56,6 +56,7 @@ class Agent:
             # Dado un cierto atom, arma un archivo extra.lp, el método retorna True
             # si y solo si el programa que resulta de considerar wumpus.lp y extra.lp
             # es tal que NO tiene modelos que no contienen a atom
+            # i.e. todos los modelos contienen a atom
 
             def get_models(filename):  # extrae los modelos desde filename
                 f = open(filename, 'r')
@@ -79,6 +80,16 @@ class Agent:
 
             # COMPLETAR - aquí se eliminaron 13 líneas de la solución (incluyendo comentarios)
             fextra = open('extra.lp', 'w')
+            # Define extra and add cell range statement
+            extra = f'cell(0..{self.env.size_x - 1},0..{self.env.size_x - 1}).\n'
+            # Add visited cells (alive cells)
+            for alive in self.env.get_visited():
+                extra += f'alive({alive[0]},{alive[1]}).\n'
+            # Add found perceptions (sense_stench and sense_breeze)
+            for perception in perceptions:
+                extra += f'{perception}.\n'
+            # Add atom
+            extra += f':- {atom}.\n'
             fextra.write(extra)
             fextra.close()
             os.system('clingo -n 0 wumpus.lp extra.lp > out.txt 2> /dev/null')
@@ -88,3 +99,36 @@ class Agent:
             return models == []
 
         # COMPLETAR - aquí se eliminaron 29 líneas de la solución (incluyendo comentarios)
+        # Get neighbors and update frontier. Only add to frontier if cell hasn't been visited.
+        neighbors = self.env.neighbors(self.x, self.y)
+        self.frontier.update(set(neighbors) - self.env.visited)
+        
+        # Get target. Target is a cell in frontier that is 100% safe
+        target = tuple()
+        for cell in self.frontier:
+            atom = f'safe({cell[0]},{cell[1]})'
+            if unsat_without(atom):
+                target = cell
+                break
+        
+        # If there's no target, we need to shoot or
+        if not target:
+            # TODO Define shoot condition here
+            if False:
+                return ('shoot', 0, 0)
+            # Else the model is unsolvable
+            return 'unsolvable'
+
+        # If target is a neighbor add to path, if not, backtrack (i.e. new target is last step)
+        if not target in neighbors:
+            target = self.path.pop()
+        else:
+            self.path.append((self.x, self.y))
+
+        # Change position to target and remove from frontier
+        self.x = target[0]
+        self.y = target[1]
+        if (self.x, self.y) in self.frontier:
+            self.frontier.remove((self.x, self.y))
+        # Go to new position in environment
+        return ('goto', self.x, self.y)
