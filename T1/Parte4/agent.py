@@ -88,6 +88,13 @@ class Agent:
             # Add found perceptions (sense_stench and sense_breeze)
             for perception in perceptions:
                 extra += f'{perception}.\n'
+            # Add number of pits and wumpuses, if available
+            num_pits = self.env.get_num_pits()
+            num_wumpus = self.env.get_num_wumpus()
+            if num_pits != None:
+                extra += f'num_pits({num_pits}).\n'
+            if num_wumpus != None:
+                extra += f'num_wumpus({num_wumpus}).\n'
             # Add atom
             extra += f':- {atom}.\n'
             fextra.write(extra)
@@ -99,23 +106,26 @@ class Agent:
             return models == []
 
         # COMPLETAR - aquí se eliminaron 29 líneas de la solución (incluyendo comentarios)
+        # Get target. Target is a cell in frontier that is 100% safe
+        def unsat_without_frontier(predicate):
+            for cell in self.frontier:
+                atom = f'{predicate}({cell[0]},{cell[1]})'
+                if unsat_without(atom):
+                    return cell
+            return tuple()
+
+
         # Get neighbors and update frontier. Only add to frontier if cell hasn't been visited.
         neighbors = self.env.neighbors(self.x, self.y)
         self.frontier.update(set(neighbors) - self.env.visited)
-        
-        # Get target. Target is a cell in frontier that is 100% safe
-        target = tuple()
-        for cell in self.frontier:
-            atom = f'safe({cell[0]},{cell[1]})'
-            if unsat_without(atom):
-                target = cell
-                break
-        
-        # If there's no target, we need to shoot or
+        target = unsat_without_frontier('safe')
+
+        # If there's no target, we may need to shoot
         if not target:
             # TODO Define shoot condition here
-            if True:
-                return ('shoot', 1, 1)
+            wumpus_target = unsat_without_frontier('wumpus')
+            if wumpus_target:
+                return ('shoot', wumpus_target[0], wumpus_target[1])
             # Else the model is unsolvable
             return 'unsolvable'
 
@@ -125,8 +135,6 @@ class Agent:
             if not found_path:
                 return 'unsolvable'
             target = path[0]
-        else:
-            self.path.append((self.x, self.y))
 
         # Change position to target and remove from frontier
         self.x = target[0]
