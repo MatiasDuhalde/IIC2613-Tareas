@@ -13,7 +13,6 @@ not safe(X,Y) :- pit(X,Y), cell(X,Y).
 % Las celdas donde hay una celda vecina alive que no tiene ningún sense son safe
 safe(X,Y) :- cell(X,Y), cell(A,B), neigh(X,Y,A,B), alive(A,B), not sense_stench(A,B), not sense_breeze(A,B).
 
-% Lo de abajo debería ser disyuntivo !! !! !! !!
 
 % Si una celda tiene la regla sense_breeze, entonces existe la posibilidad de que la celda adyacente
 % tenga un pozo (pit).
@@ -36,6 +35,11 @@ not wumpus(X,Y) :- cell(X,Y), cell(A,B), not sense_stench(A,B), neigh(X,Y,A,B), 
 :- cell(X,Y), sense_breeze(X,Y), K = #count{A,B : cell(A,B), neigh(X,Y,A,B), not safe(A,B)}, K==0.
 % Una celda con la regla sense_stench debe tener por lo menos una celda vecina que no es safe.
 :- cell(X,Y), sense_stench(X,Y), K = #count{A,B : cell(A,B), neigh(X,Y,A,B), not safe(A,B)}, K==0.
+
+% No pueden haber modelos donde la cantidad de pozos sea mayor al máximo.
+:- num_pits(N), K = #count{A,B : cell(A,B), pit(A,B)}, K > N.
+% No pueden haber modelos donde la cantidad de wumpus sea mayor al máximo.
+:- num_wumpus(N), K = #count{A,B : cell(A,B), wumpus(A,B)}, K > N.
 
 #show pit/2.
 #show wumpus/2.
