@@ -122,7 +122,6 @@ class Agent:
 
         # If there's no target, we may need to shoot
         if not target:
-            # TODO Define shoot condition here
             wumpus_target = unsat_without_frontier('wumpus')
             if wumpus_target:
                 return ('shoot', wumpus_target[0], wumpus_target[1])
