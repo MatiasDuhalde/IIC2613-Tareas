@@ -9,12 +9,17 @@ class Astar:
         self.generated = 0
         self.initial_state = initial_state
         self.heuristic = heuristic
+        self.solution = None
 
     def estimate_suboptimality(self):
-        return 0  # este método debe ser implementado en la parte 1
+        min_f = None
+        for nodo in self.open:
+            fvalue = self.fvalue(nodo.h, nodo.g)[0]
+            min_f = fvalue if min_f is None or fvalue < min_f else min_f
+        return self.solution.g/min_f
 
     def fvalue(self, g, h):
-        return g + h
+        return (g + h, h)
 
     def search(self):
         self.start_time = time.process_time()
@@ -33,6 +38,7 @@ class Astar:
             n = self.open.extract()   # extrae n de la open
             if n.state.is_goal():
                 self.end_time = time.process_time()
+                self.solution = n
                 return n
             succ = n.state.successors()
             self.expansions += 1
