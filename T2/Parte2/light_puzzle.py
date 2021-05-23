@@ -1,6 +1,7 @@
 import sys
 import random
 import copy
+import math
 
 
 class LightPuzzle:
@@ -43,7 +44,8 @@ class LightPuzzle:
         line = f.readline(100)
         line = line.rstrip()
         numbers = line.split(' ')
-        Puzzle.pdb_pattern[id] = [int(x) for x in numbers]  # los valores incluidos en el patron
+        # los valores incluidos en el patron
+        LightPuzzle.pdb_pattern[id] = [int(x) for x in numbers]
         while f:
             line = f.readline(100)
             line = line.rstrip()
@@ -53,7 +55,7 @@ class LightPuzzle:
             tup = tuple([int(x) for x in numbers[:-1]])
             value = int(numbers[-1])
 #            print(tup, value)
-            Puzzle.pdb[id][tup] = value
+            LightPuzzle.pdb[id][tup] = value
 
     def __hash__(self):
         return hash(tuple(self.board))
@@ -105,6 +107,30 @@ class LightPuzzle:
                 num += abs(i // self.x - self.board[i] // self.x)
         return num
 
+    def light_manhattan(self):
+        num = 0
+        for i in range(0, self.size):
+            if self.board[i] == 0:
+                continue
+            else:
+                num += math.sin(abs(i % self.x - self.board[i] % self.x)/15*0.5*math.pi)
+                num += math.sin(abs(i // self.x - self.board[i] // self.x)/15*0.5*math.pi)
+        return num
+
+    def manhattan_div_15(self):
+        '''
+            retorna la suma de distancias manhattan divididas en 15 de cada pieza a su
+            posicion final
+        '''
+        num = 0
+        for i in range(0, self.size):
+            if self.board[i] == 0:
+                continue
+            else:
+                num += abs(i % self.x - self.board[i] % self.x) / 15
+                num += abs(i // self.x - self.board[i] // self.x) / 15
+        return num
+
     def successors(self):
         '''
             Crea una lista de tuplas de la forma (estado, accion, costo)
@@ -121,16 +147,20 @@ class LightPuzzle:
         succ = []
         if self.blank > self.x - 1:
             c = create_child(self.blank-self.x)
-            succ.append((c, 'up', 1))
+            n = self.board[self.blank-self.x]
+            succ.append((c, 'up', 1/n))
         if self.blank % self.x > 0:
             c = create_child(self.blank-1)
-            succ.append((c, 'left', 1))
+            n = self.board[self.blank-1]
+            succ.append((c, 'left', 1/n))
         if self.blank % self.x < self.x - 1:
             c = create_child(self.blank+1)
-            succ.append((c, 'right', 1))
+            n = self.board[self.blank+1]
+            succ.append((c, 'right', 1/n))
         if self.blank < self.size - self.x:
             c = create_child(self.blank+self.x)
-            succ.append((c, 'down', 1))
+            n = self.board[self.blank+self.x]
+            succ.append((c, 'down', 1/n))
         return succ
 
     def is_goal(self):
