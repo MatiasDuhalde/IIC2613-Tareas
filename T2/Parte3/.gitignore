@@ -1,0 +1,9 @@
+__pycache__/
+
+15puzzle_solver_model.h5
+litemodel.py
+multi_binary_heap.py
+multi_node.py
+problems.txt
+puzzle_nn_new.py
+test_preferred_astar.py
