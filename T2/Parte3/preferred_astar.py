@@ -15,13 +15,11 @@ class PrefAstar:
         self.suboptimality = suboptimality
 
     def estimate_suboptimality(self):
-        min_f = None
-        for nodo in self.open:
-            fvalue = self.fvalue(nodo.g, nodo.h[0])[0]
-            min_f = fvalue if min_f is None or fvalue < min_f else min_f
-        for nodo in self.preferred:
-            fvalue = self.fvalue(nodo.g, nodo.h[0])[0]
-            min_f = fvalue if min_f is None or fvalue < min_f else min_f
+        open_top = self.open.top()
+        preferred_top = self.preferred.top()
+        open_m = self.fvalue(open_top.g, open_top.h[0])[0] if open_top else float('inf')
+        preferred_m = self.fvalue(preferred_top.g, preferred_top.h[0])[0] if preferred_top else float('inf')
+        min_f = min(open_m, preferred_m)
         return self.solution.g/min_f
 
     def fvalue(self, g, h):
@@ -64,13 +62,11 @@ class PrefAstar:
 
             counter += 1
             n = queue.extract()
-            m = None
-            for nodo in self.open:
-                fvalue = self.fvalue(nodo.g, nodo.h[0])[0]
-                m = fvalue if m is None or fvalue < m else m
-            for nodo in self.preferred:
-                fvalue = self.fvalue(nodo.g, nodo.h[0])[0]
-                m = fvalue if m is None or fvalue < m else m
+            open_top = self.open.top()
+            preferred_top = self.preferred.top()
+            open_m = self.fvalue(open_top.g, open_top.h[0])[0] if open_top else float('inf')
+            preferred_m = self.fvalue(preferred_top.g, preferred_top.h[0])[0] if preferred_top else float('inf')
+            m = min(open_m, preferred_m)
             if m and self.fvalue(n.g, n.h[0])[0] > self.suboptimality * m:
                 self.open.insert(n)
                 continue
