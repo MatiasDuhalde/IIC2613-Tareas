@@ -17,10 +17,10 @@ class PrefAstar:
     def estimate_suboptimality(self):
         min_f = None
         for nodo in self.open:
-            fvalue = self.fvalue(nodo.h[0], nodo.g)[0]
+            fvalue = self.fvalue(nodo.g, nodo.h[0])[0]
             min_f = fvalue if min_f is None or fvalue < min_f else min_f
         for nodo in self.preferred:
-            fvalue = self.fvalue(nodo.h[0], nodo.g)[0]
+            fvalue = self.fvalue(nodo.g, nodo.h[0])[0]
             min_f = fvalue if min_f is None or fvalue < min_f else min_f
         return self.solution.g/min_f
 
@@ -64,6 +64,16 @@ class PrefAstar:
 
             counter += 1
             n = queue.extract()
+            m = None
+            for nodo in self.open:
+                fvalue = self.fvalue(nodo.g, nodo.h[0])[0]
+                m = fvalue if m is None or fvalue < m else m
+            for nodo in self.preferred:
+                fvalue = self.fvalue(nodo.g, nodo.h[0])[0]
+                m = fvalue if m is None or fvalue < m else m
+            if m and self.fvalue(n.g, n.h[0])[0] > self.suboptimality * m:
+                self.open.insert(n)
+                continue
 
             if n.h[0] == 0:
                 self.end_time = time.process_time()
