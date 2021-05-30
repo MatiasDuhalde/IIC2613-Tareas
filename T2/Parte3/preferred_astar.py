@@ -15,12 +15,14 @@ class PrefAstar:
         self.suboptimality = suboptimality
 
     def estimate_suboptimality(self):
-        # min_f = None
-        # for nodo in self.open:
-        #     fvalue = self.fvalue(nodo.h, nodo.g)[0]
-        #     min_f = fvalue if min_f is None or fvalue < min_f else min_f
-        # return self.solution.g/min_f
-        return 0
+        min_f = None
+        for nodo in self.open:
+            fvalue = self.fvalue(nodo.h[0], nodo.g)[0]
+            min_f = fvalue if min_f is None or fvalue < min_f else min_f
+        for nodo in self.preferred:
+            fvalue = self.fvalue(nodo.h[0], nodo.g)[0]
+            min_f = fvalue if min_f is None or fvalue < min_f else min_f
+        return self.solution.g/min_f
 
     def fvalue(self, g, h):
         return (g + h, h)
@@ -93,5 +95,5 @@ class PrefAstar:
                         self.preferred.insert(child_node)
                     else:
                         self.open.insert(child_node)
-        self.end_time = time.process_time()      # en caso contrario, modifica la posicion de child_node en open
+        self.end_time = time.process_time()
         return None
