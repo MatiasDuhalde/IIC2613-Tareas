@@ -4,12 +4,13 @@ import time
 
 
 class Astar:
-    def __init__(self, initial_state, heuristic, weight):
+    def __init__(self, initial_state, heuristic, weight=1):
         self.expansions = 0
         self.generated = 0
         self.initial_state = initial_state
         self.heuristic = heuristic
         self.solution = None
+        self.weight = weight
 
     def estimate_suboptimality(self):
         min_f = None
@@ -19,7 +20,7 @@ class Astar:
         return self.solution.g/min_f
 
     def fvalue(self, g, h):
-        return (g + h, h)
+        return (g + self.weight*h, h)
 
     def search(self):
         self.start_time = time.process_time()
