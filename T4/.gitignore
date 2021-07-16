@@ -2,3 +2,5 @@ diamonds.csv
 
 __pycache__/
 .vscode/
+
+models/
